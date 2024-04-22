@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional
 from ..extras.constants import DATA_CONFIG
 from ..extras.misc import use_modelscope
 
-
 if TYPE_CHECKING:
     from ..hparams import DataArguments
 
@@ -50,6 +49,23 @@ class DatasetAttr:
 
     def set_attr(self, key: str, obj: Dict[str, Any], default: Optional[Any] = None) -> None:
         setattr(self, key, obj.get(key, default))
+
+
+def get_riki_dataset_list(data_args: "DataArguments") -> List["DatasetAttr"]:
+    dataset_list: List[DatasetAttr] = []
+    dataset = os.path.join(data_args.dataset_dir, data_args.dataset)
+    dataset_info = {
+        "file_name": dataset
+    }
+    dataset_attr = DatasetAttr("file", dataset_name=dataset)
+    dataset_attr.set_attr("file_sha1", dataset_info)
+    dataset_attr.set_attr("subset", dataset_info)
+    dataset_attr.set_attr("folder", dataset_info)
+    dataset_attr.set_attr("ranking", dataset_info, default=False)
+    dataset_attr.set_attr("formatting", dataset_info, default="alpaca")
+    dataset_list.append(dataset_attr)
+
+    return dataset_list
 
 
 def get_dataset_list(data_args: "DataArguments") -> List["DatasetAttr"]:
