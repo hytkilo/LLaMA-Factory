@@ -5,7 +5,7 @@ import torch
 from transformers import PreTrainedModel
 
 from ..data import get_template_and_fix_tokenizer
-from ..extras.callbacks import LogCallback
+from ..extras.callbacks import LogCallback, RikiLogCallback
 from ..extras.logging import get_logger
 from ..hparams import get_infer_args, get_train_args
 from ..model import load_model, load_tokenizer
