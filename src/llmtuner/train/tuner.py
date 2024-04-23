@@ -137,9 +137,11 @@ def export_model(args: Optional[Dict[str, Any]] = None):
         raise ValueError("Please merge adapters before quantizing the model.")
 
     tokenizer = load_tokenizer(model_args)
+    print('get_template_and_fix_tokenizer')
     get_template_and_fix_tokenizer(tokenizer, data_args.template)
+    print('load_model')
     model = load_model(tokenizer, model_args, finetuning_args)  # must after fixing tokenizer to resize vocab
-
+    print('load_model finish')
     if getattr(model, "quantization_method", None) and model_args.adapter_name_or_path is not None:
         raise ValueError("Cannot merge adapters to a quantized model.")
 

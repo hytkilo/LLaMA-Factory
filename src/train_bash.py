@@ -4,7 +4,7 @@ import socketio
 
 def main():
     sio = socketio.Client()
-    sio.connect('wss://admin.yunhelp.com/socket.io/?socketType=train_client&clientId=111', transports=['websocket'],
+    sio.connect('https://admin.yunhelp.com/socket.io/?socketType=train_client&clientId=111', transports=['websocket'],
                 retry=True, wait_timeout=2)
 
     @sio.event
