@@ -71,9 +71,9 @@ def download(dataset_dir, datasetPath):
 
 
 def run_riki_exp(sio, data):
-    dataset_dir = '../riki_data'
+    dataset_dir = '/data/riki_dataset'
     dataset = download(dataset_dir, data['datasetPath'])
-    output_dir = '../saves_riki/lora/' + data['baseModel'] + '/' + data['modelPath']
+    output_dir = '/data/riki_models/lora/' + data['baseModel'] + '/' + data['modelPath']
     advance_config = json.loads(data['advanceConfig'])
     args = dict(
         stage='sft',
