@@ -1,11 +1,11 @@
+import os.path
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from urllib.parse import urlparse, unquote
-import os.path
 import torch
 from transformers import PreTrainedModel
 
 from ..data import get_template_and_fix_tokenizer
-from ..extras.callbacks import LogCallback, RikiLogCallback
+from ..extras.callbacks import LogCallback, RikiLogCallback, RikiLogCallbackRedis
 from ..extras.logging import get_logger
 from ..hparams import get_infer_args, get_train_args
 from ..model import load_model, load_tokenizer
@@ -15,8 +15,8 @@ from .ppo import run_ppo
 from .pt import run_pt
 from .rm import run_rm
 from .sft import run_sft
-import json
 import requests
+import json
 
 if TYPE_CHECKING:
     from transformers import TrainerCallback
@@ -26,7 +26,7 @@ logger = get_logger(__name__)
 
 def run_exp(args: Optional[Dict[str, Any]] = None, callbacks: Optional[List["TrainerCallback"]] = None):
     model_args, data_args, training_args, finetuning_args, generating_args = get_train_args(args)
-    callbacks = [LogCallback()] if callbacks is None else callbacks
+    callbacks = [LogCallback(), RikiLogCallbackRedis(args)] if callbacks is None else callbacks
 
     if finetuning_args.stage == "pt":
         run_pt(model_args, data_args, training_args, finetuning_args, callbacks)
@@ -70,10 +70,42 @@ def download(dataset_dir, datasetPath):
         return ''
 
 
+# CUDA_VISIBLE_DEVICES=0 python ../../src/train_bash.py \
+#     --stage sft \
+#     --do_train \
+#     --model_name_or_path meta-llama/Llama-2-7b-hf \
+#     --dataset alpaca_gpt4_en,glaive_toolcall \
+#     --dataset_dir ../../data \
+#     --template default \
+#     --finetuning_type lora \
+#     --lora_target q_proj,v_proj \
+#     --output_dir ../../saves/LLaMA2-7B/lora/sft \
+#     --overwrite_cache \
+#     --overwrite_output_dir \
+#     --cutoff_len 1024 \
+#     --preprocessing_num_workers 16 \
+#     --per_device_train_batch_size 1 \
+#     --per_device_eval_batch_size 1 \
+#     --gradient_accumulation_steps 8 \
+#     --lr_scheduler_type cosine \
+#     --logging_steps 10 \
+#     --warmup_steps 20 \
+#     --save_steps 100 \
+#     --eval_steps 100 \
+#     --evaluation_strategy steps \
+#     --load_best_model_at_end \
+#     --learning_rate 5e-5 \
+#     --num_train_epochs 3.0 \
+#     --max_samples 3000 \
+#     --val_size 0.1 \
+#     --plot_loss \
+#     --fp16
+
+
 def run_riki_exp(sio, data):
-    dataset_dir = '/data/riki_dataset'
+    dataset_dir = '../riki_data'
     dataset = download(dataset_dir, data['datasetPath'])
-    output_dir = '/data/riki_models/lora/' + data['baseModel'] + '/' + data['modelPath']
+    output_dir = '../saves_riki/lora/' + data['baseModel'] + '/' + data['modelPath']
     advance_config = json.loads(data['advanceConfig'])
     args = dict(
         stage='sft',
@@ -151,7 +183,8 @@ def export_model(args: Optional[Dict[str, Any]] = None):
     if getattr(model, "quantization_method", None) is None:  # cannot convert dtype of a quantized model
         output_dtype = getattr(model.config, "torch_dtype", torch.float16)
         setattr(model.config, "torch_dtype", output_dtype)
-        model = model.to(output_dtype)
+        for param in model.parameters():
+            param.data = param.data.to(output_dtype)
 
     model.save_pretrained(
         save_directory=model_args.export_dir,
