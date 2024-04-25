@@ -23,7 +23,8 @@ def main():
         print(f"Received: {message['data'].decode()}")
 
     sub.subscribe(**{'train_model': message_handler})
-
+    sub.run_in_thread(sleep_time=0.001)
+    
     @sio.event
     def do_train(data):
         print(data)
