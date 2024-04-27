@@ -326,7 +326,7 @@ class RikiLogCallback(TrainerCallback):
 
 
 class RikiLogCallbackRedis(TrainerCallback):
-    def __init__(self, runner=None, args=None):
+    def __init__(self, runner=None, data=None, output_dir=None):
         import redis
         redis_host = '10.12.0.16'
         redis_port = 6379
@@ -339,7 +339,8 @@ class RikiLogCallbackRedis(TrainerCallback):
         self.max_steps = 0
         self.elapsed_time = ""
         self.remaining_time = ""
-        self.args = args
+        self.data = data
+        self.output_dir = output_dir
 
     def timing(self):
         cur_time = time.time()
@@ -369,7 +370,7 @@ class RikiLogCallbackRedis(TrainerCallback):
             logger.warning("Previous log file in this folder will be deleted.")
             os.remove(os.path.join(args.output_dir, LOG_FILE_NAME))
         self.r.publish("train_model",
-                       json.dumps({'modelId': self.args['model_id'], 'type': 'train_begin'}, ensure_ascii=False))
+                       json.dumps({'modelId': self.data.model_id, 'type': 'train_begin'}, ensure_ascii=False))
 
     def on_train_end(self, args: "TrainingArguments", state: "TrainerState", control: "TrainerControl", **kwargs):
         r"""
@@ -392,7 +393,7 @@ class RikiLogCallbackRedis(TrainerCallback):
                 # 打印响应内容
                 print(response.text)
                 self.r.publish("train_model", json.dumps(
-                    {'modelId': self.args['model_id'], 'modelUrl': response.json()['data'], 'type': 'train_end'},
+                    {'modelId': self.data.model_id, 'modelUrl': response.json()['data'], 'type': 'train_end'},
                     ensure_ascii=False))
 
     def on_substep_end(self, args: "TrainingArguments", state: "TrainerState", control: "TrainerControl", **kwargs):
@@ -464,7 +465,7 @@ class RikiLogCallbackRedis(TrainerCallback):
                 )
             )
         self.r.publish("train_model", json.dumps(
-            {'modelId': self.args['model_id'], 'info': logs, 'type': 'train_info'},
+            {'modelId': self.data.model_id, 'info': logs, 'type': 'train_info'},
             ensure_ascii=False))
         # os.makedirs(args.output_dir, exist_ok=True)
         # with open(os.path.join(args.output_dir, "trainer_log.jsonl"), "a", encoding="utf-8") as f:

@@ -52,6 +52,7 @@ class DatasetAttr:
 
 
 def get_riki_dataset_list(data_args: "DataArguments") -> List["DatasetAttr"]:
+    print('get_riki_dataset_list start')
     dataset_list: List[DatasetAttr] = []
     dataset = os.path.join(data_args.dataset_dir, data_args.dataset)
     dataset_info = {
@@ -64,7 +65,7 @@ def get_riki_dataset_list(data_args: "DataArguments") -> List["DatasetAttr"]:
     dataset_attr.set_attr("ranking", dataset_info, default=False)
     dataset_attr.set_attr("formatting", dataset_info, default="alpaca")
     dataset_list.append(dataset_attr)
-
+    print('get_riki_dataset_list finish')
     return dataset_list
 
 

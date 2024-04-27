@@ -26,7 +26,8 @@ logger = get_logger(__name__)
 
 def run_exp(args: Optional[Dict[str, Any]] = None, callbacks: Optional[List["TrainerCallback"]] = None):
     model_args, data_args, training_args, finetuning_args, generating_args = get_train_args(args)
-    callbacks = [LogCallback(), RikiLogCallbackRedis(args)] if callbacks is None else callbacks
+    print(finetuning_args)
+    callbacks = [LogCallback(), RikiLogCallbackRedis(data=finetuning_args, output_dir=training_args.output_dir)] if callbacks is None else callbacks
 
     if finetuning_args.stage == "pt":
         run_pt(model_args, data_args, training_args, finetuning_args, callbacks)
@@ -103,9 +104,9 @@ def download(dataset_dir, datasetPath):
 
 
 def run_riki_exp(sio, data):
-    dataset_dir = '../riki_data'
+    dataset_dir = '/data/riki_lf/riki_data'
     dataset = download(dataset_dir, data['datasetPath'])
-    output_dir = '../saves_riki/lora/' + data['baseModel'] + '/' + data['modelPath']
+    output_dir = '/data/riki_lf/riki_models/lora/' + data['baseModel'] + '/' + data['modelPath']
     advance_config = json.loads(data['advanceConfig'])
     args = dict(
         stage='sft',

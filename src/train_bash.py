@@ -1,18 +1,9 @@
-from llmtuner import run_riki_exp
+from llmtuner import run_exp
 import socketio
 
 
 def main():
-    sio = socketio.Client()
-    sio.connect('https://admin.yunhelp.com/socket.io/?socketType=train_client&clientId=111', transports=['websocket'],
-                retry=True, wait_timeout=2)
-
-    @sio.event
-    def do_train(data):
-        print(data)
-        run_riki_exp(sio, data)
-
-    sio.wait()
+    run_exp()
 
 
 def _mp_fn(index):

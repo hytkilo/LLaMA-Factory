@@ -137,8 +137,9 @@ def get_dataset(
 
         if data_args.streaming:
             raise ValueError("Turn off `streaming` when saving dataset to disk.")
-
+    print("Loading dataset from disk")
     with training_args.main_process_first(desc="load dataset"):
+        print("main_process_first")
         all_datasets = []
         for dataset_attr in get_riki_dataset_list(data_args):
             if (stage == "rm" and dataset_attr.ranking is False) or (stage != "rm" and dataset_attr.ranking is True):
