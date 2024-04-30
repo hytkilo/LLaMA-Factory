@@ -15,20 +15,10 @@ sub = r.pubsub()
 
 training_model = ''
 
+
 def main():
     sio = socketio.Client()
-    sio.connect('https://admin.yunhelp.com/socket.io/?socketType=train_client&clientId=111', transports=['websocket'],
-                retry=True, wait_timeout=2)
-    def message_handler(message):
-        data = json.loads(message['data'])
-        print(training_model)
-        if str(training_model) == data['modelId']:
-            sio.emit(data['type'], data)
-        print(f"Received: {message}")
 
-    sub.subscribe(**{'train_model': message_handler})
-    sub.run_in_thread(sleep_time=0.001)
-    
     @sio.event
     def do_train(data):
         print(data)
@@ -42,6 +32,19 @@ def main():
         cmd = "".join(cmd_text)
         print(cmd)
         process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env)
+
+    sio.connect('https://admin.yunhelp.com/socket.io/?socketType=train_client&clientId=111', transports=['websocket'],
+                retry=True, wait_timeout=2)
+
+    def message_handler(message):
+        data = json.loads(message['data'])
+        print(training_model)
+        if str(training_model) == data['modelId']:
+            sio.emit(data['type'], data)
+        print(f"Received: {message}")
+
+    sub.subscribe(**{'train_model': message_handler})
+    sub.run_in_thread(sleep_time=0.001)
 
     sio.wait()
 
@@ -129,7 +132,8 @@ def gen_dict(data) -> Dict[str, Any]:
 
 
 def gen_cmd(args: Dict[str, Any]) -> str:
-    cmd_lines = ["conda run -n riki_lf accelerate launch --config_file ../examples/accelerate/single_config.yaml train_bash.py"]
+    cmd_lines = [
+        "conda run -n riki_lf accelerate launch --config_file ../examples/accelerate/single_config.yaml train_bash.py"]
     for k, v in args.items():
         if v is not None and v is not False and v != "":
             cmd_lines.append(" --{} {} ".format(k, str(v)))
