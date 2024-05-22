@@ -148,6 +148,8 @@ def run_riki_exp(sio, data):
     )
     if advance_config.get('additional_target') is not None:
         args.setdefault("additional_target", advance_config.get('additional_target'))
+    if advance_config.get('quantizationBit') and advance_config.get('quantizationBit') != '':
+        args.setdefault("quantization_bit", int(advance_config.get('quantizationBit')))
     model_args, data_args, training_args, finetuning_args, generating_args = get_train_args(args)
     callbacks = [LogCallback(), RikiLogCallback(socket=sio, data=data, output_dir=output_dir)]
     try:

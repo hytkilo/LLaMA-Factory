@@ -4,7 +4,7 @@ from llmtuner import run_riki_exp
 
 def main():
     sio = socketio.Client()
-    sio.connect('https://admin.yunhelp.com/socket.io/?socketType=train_client&clientId=111&vram=24', transports=['websocket'], retry=True, wait_timeout=2)
+    sio.connect('https://admin.yunhelp.com/socket.io/?socketType=train_client&clientId=gpu40901&vram=24', transports=['websocket'], retry=True, wait_timeout=2)
 
     @sio.event
     def do_train(data):
