@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from urllib.parse import urlparse, unquote
 import torch
 from transformers import PreTrainedModel
-
+from .riki import get_path
 from ..data import get_template_and_fix_tokenizer
 from ..extras.callbacks import LogCallback, RikiLogCallback, RikiLogCallbackRedis
 from ..extras.logging import get_logger
@@ -106,6 +106,10 @@ def download(dataset_dir, datasetPath):
 def run_riki_exp(sio, data):
     dataset_dir = '/data/riki_lf/riki_data'
     dataset = download(dataset_dir, data['datasetPath'])
+    adapters = []
+    if data.get("parentModelPath") is not None:
+        for url in data.get("parentModelPath"):
+            adapters.append(get_path(url))
     output_dir = '/data/riki_lf/riki_models/lora/' + data['baseModel'] + '/' + data['modelPath']
     advance_config = json.loads(data['advanceConfig'])
     args = dict(
@@ -147,6 +151,8 @@ def run_riki_exp(sio, data):
         fp16=True,
         flash_attn=True,
     )
+    if len(adapters) > 0:
+        args.setdefault("adapter_name_or_path", ",".join(adapters))
     if advance_config.get('additional_target') is not None:
         args.setdefault("additional_target", advance_config.get('additional_target'))
     if advance_config.get('quantizationBit') and advance_config.get('quantizationBit') != '':
