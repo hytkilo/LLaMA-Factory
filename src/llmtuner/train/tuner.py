@@ -144,7 +144,8 @@ def run_riki_exp(sio, data):
         upcast_layernorm=advance_config['upcastLayernorm'],
         use_llama_pro=advance_config['useLlamaPro'],
         num_layer_trainable=advance_config['numLayerTrainable'],
-        fp16=True
+        fp16=True,
+        flash_attn=True,
     )
     if advance_config.get('additional_target') is not None:
         args.setdefault("additional_target", advance_config.get('additional_target'))
