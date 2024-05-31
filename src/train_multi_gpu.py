@@ -4,6 +4,7 @@ import json
 import os.path
 import requests
 from urllib.parse import urlparse, unquote
+from llmtuner.train.riki import get_path
 import redis
 import subprocess
 
@@ -84,6 +85,10 @@ def gen_dict(data) -> Dict[str, Any]:
     dataset_dir = '/data/riki_lf/riki_data'
     dataset = download(dataset_dir, data['datasetPath'])
     output_dir = '/data/riki_lf/riki_models/lora/' + data['baseModel'] + '/' + data['modelPath']
+    adapters = []
+    if data.get("parentModelPath") is not None:
+        for url in data.get("parentModelPath"):
+            adapters.append(get_path(url))
     advance_config = json.loads(data['advanceConfig'])
     args = dict(
         stage='sft',
@@ -124,6 +129,8 @@ def gen_dict(data) -> Dict[str, Any]:
         num_layer_trainable=advance_config['numLayerTrainable'],
         fp16=True
     )
+    if len(adapters) > 0:
+        args.setdefault("adapter_name_or_path", ",".join(adapters))
     if "32B" in data['baseModel']:
         args.setdefault("quantization_bit", 4)
     if advance_config.get('additional_target') is not None:
