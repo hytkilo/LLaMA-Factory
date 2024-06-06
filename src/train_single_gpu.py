@@ -8,7 +8,7 @@ def main():
     sio.connect(riki_config('riki.admin_url') + riki_config('riki.socket_uri')
                 + '&clientId=' + riki_config('train.device_id')
                 + '&vram=' + riki_config('train.vram'), transports=['websocket'], retry=True, wait_timeout=2)
-
+    print("连接riki服务成功...")
     @sio.event
     def do_train(data):
         print(data)
