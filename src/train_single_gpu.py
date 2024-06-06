@@ -1,10 +1,13 @@
 import socketio
-from llmtuner import run_riki_exp
+from llamafactory.train.tuner import run_riki_exp
+from riki import riki_config
 
 
 def main():
     sio = socketio.Client()
-    sio.connect('https://admin.yunhelp.com/socket.io/?socketType=train_client&clientId=gpu40901&vram=24', transports=['websocket'], retry=True, wait_timeout=2)
+    sio.connect(riki_config('riki.admin_url') + riki_config('riki.socket_uri')
+                + '&clientId=' + riki_config('train.device_id')
+                + '&vram=' + riki_config('train.vram'), transports=['websocket'], retry=True, wait_timeout=2)
 
     @sio.event
     def do_train(data):

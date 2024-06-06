@@ -4,14 +4,15 @@ import json
 import os.path
 import requests
 from urllib.parse import urlparse, unquote
-from llmtuner.train.riki import get_path
+from riki import get_path, riki_config
 import redis
 import subprocess
 
-redis_host = '10.12.0.16'
-redis_port = 6379
-redis_password = '2sSwwJ7@f8UT'
-r = redis.Redis(host=redis_host, port=redis_port, db=5, password=redis_password, decode_responses=True)
+redis_host = riki_config('redis.host')
+redis_port = int(riki_config('redis.port'))
+redis_password = riki_config('redis.password')
+redis_db = int(riki_config('redis.db'))
+r = redis.Redis(host=redis_host, port=redis_port, db=redis_db, password=redis_password, decode_responses=True)
 sub = r.pubsub()
 
 training_model = ''
@@ -25,7 +26,7 @@ def main():
         print(data)
         args = gen_dict(data)
         cmd_text = gen_cmd(args)
-        env_vars = {"CUDA_VISIBLE_DEVICES": "4,5,6,7"}
+        env_vars = {"CUDA_VISIBLE_DEVICES": riki_config('train.devices')}
         env = os.environ.copy()
         env.update(env_vars)
         global training_model
@@ -34,7 +35,10 @@ def main():
         print(cmd)
         process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env)
 
-    sio.connect('https://admin.yunhelp.com/socket.io/?socketType=train_client&clientId=111', transports=['websocket'],
+    sio.connect(riki_config('riki.admin_url') + riki_config('riki.socket_uri')
+                + '&clientId=' + riki_config('train.device_id')
+                + '&vram=' + riki_config('train.vram')
+                , transports=['websocket'],
                 retry=True, wait_timeout=2)
 
     def message_handler(message):
@@ -82,9 +86,9 @@ def download(dataset_dir, datasetPath):
 
 
 def gen_dict(data) -> Dict[str, Any]:
-    dataset_dir = '/data/riki_lf/riki_data'
+    dataset_dir = riki_config('train.dataset_dir')
     dataset = download(dataset_dir, data['datasetPath'])
-    output_dir = '/data/riki_lf/riki_models/lora/' + data['baseModel'] + '/' + data['modelPath']
+    output_dir = riki_config('train.lora_dir') + data['baseModel'] + '/' + data['modelPath']
     adapters = []
     if data.get("parentModelPath") is not None:
         for url in data.get("parentModelPath"):
@@ -103,7 +107,6 @@ def gen_dict(data) -> Dict[str, Any]:
         output_dir=output_dir,
         overwrite_cache=True,
         overwrite_output_dir=True,
-        cutoff_len=16384,
         preprocessing_num_workers=16,
         per_device_train_batch_size=advance_config['batchSize'],
         per_device_eval_batch_size=1,
@@ -129,6 +132,10 @@ def gen_dict(data) -> Dict[str, Any]:
         num_layer_trainable=advance_config['numLayerTrainable'],
         fp16=True
     )
+    if advance_config.get('cutoff_len') is not None:
+        args.setdefault("cutoff_len", int(advance_config.get('cutoff_len')))
+    else:
+        args.setdefault("cutoff_len", 16384)
     if len(adapters) > 0:
         args.setdefault("adapter_name_or_path", ",".join(adapters))
     if "32B" in data['baseModel']:
