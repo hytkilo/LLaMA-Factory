@@ -130,6 +130,7 @@ def gen_dict(data) -> Dict[str, Any]:
         warmup_steps=advance_config['warmupSteps'],
         upcast_layernorm=advance_config['upcastLayernorm'],
         use_llama_pro=advance_config['useLlamaPro'],
+        flash_attn='auto',
         # num_layer_trainable=advance_config['numLayerTrainable'],
         fp16=True
     )
@@ -143,6 +144,8 @@ def gen_dict(data) -> Dict[str, Any]:
         args.setdefault("cutoff_len", 16384)
     if len(adapters) > 0:
         args.setdefault("adapter_name_or_path", ",".join(adapters))
+    if advance_config.get('quantizationBit') is not None:
+        args.setdefault("quantization_bit", int(advance_config.get('quantizationBit')))
     if "32B" in data['baseModel']:
         args.setdefault("quantization_bit", 4)
     if advance_config.get('additional_target') is not None:
