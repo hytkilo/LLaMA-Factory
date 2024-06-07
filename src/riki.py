@@ -130,7 +130,7 @@ def gen_dict(data) -> Dict[str, Any]:
         warmup_steps=advance_config['warmupSteps'],
         upcast_layernorm=advance_config['upcastLayernorm'],
         use_llama_pro=advance_config['useLlamaPro'],
-        num_layer_trainable=advance_config['numLayerTrainable'],
+        # num_layer_trainable=advance_config['numLayerTrainable'],
         fp16=True
     )
     if 'qwen' in data['baseModel']:

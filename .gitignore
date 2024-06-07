@@ -9,6 +9,7 @@ __pycache__/
 # Distribution / packaging
 riki_lf/
 src/riki_config.yaml
+src/riki_config.ini
 .Python
 build/
 develop-eggs/
