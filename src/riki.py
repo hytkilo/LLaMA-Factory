@@ -144,7 +144,7 @@ def gen_dict(data) -> Dict[str, Any]:
         args.setdefault("cutoff_len", 16384)
     if len(adapters) > 0:
         args.setdefault("adapter_name_or_path", ",".join(adapters))
-    if advance_config.get('quantizationBit') is not None:
+    if advance_config.get('quantizationBit') is not None and advance_config.get('quantizationBit') != '':
         args.setdefault("quantization_bit", int(advance_config.get('quantizationBit')))
     if "32B" in data['baseModel']:
         args.setdefault("quantization_bit", 4)
