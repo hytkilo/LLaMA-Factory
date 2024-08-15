@@ -70,6 +70,24 @@ class DatasetAttr:
         setattr(self, key, obj.get(key, default))
 
 
+def get_riki_dataset_list(data_args: "DataArguments") -> List["DatasetAttr"]:
+    print('get_riki_dataset_list start')
+    dataset_list: List[DatasetAttr] = []
+    dataset = os.path.join(data_args.dataset_dir, data_args.dataset)
+    dataset_info = {
+        "file_name": dataset
+    }
+    dataset_attr = DatasetAttr("file", dataset_name=dataset)
+    dataset_attr.set_attr("file_sha1", dataset_info)
+    dataset_attr.set_attr("subset", dataset_info)
+    dataset_attr.set_attr("folder", dataset_info)
+    dataset_attr.set_attr("ranking", dataset_info, default=False)
+    dataset_attr.set_attr("formatting", dataset_info, default="alpaca")
+    dataset_list.append(dataset_attr)
+    print('get_riki_dataset_list finish')
+    return dataset_list
+
+
 def get_dataset_list(dataset_names: Optional[Sequence[str]], dataset_dir: str) -> List["DatasetAttr"]:
     r"""
     Gets the attributes of the datasets.

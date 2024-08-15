@@ -25,7 +25,7 @@ from ..extras.logging import get_logger
 from ..extras.misc import has_tokenized_data
 from .aligner import align_dataset
 from .data_utils import merge_dataset, split_dataset
-from .parser import get_dataset_list
+from .parser import get_dataset_list, get_riki_dataset_list
 from .preprocess import get_preprocess_and_print_func
 from .template import get_template_and_fix_tokenizer
 
@@ -146,7 +146,7 @@ def _get_merged_dataset(
         return None
 
     datasets = []
-    for dataset_attr in get_dataset_list(dataset_names, data_args.dataset_dir):
+    for dataset_attr in get_riki_dataset_list(data_args):
         if (stage == "rm" and dataset_attr.ranking is False) or (stage != "rm" and dataset_attr.ranking is True):
             raise ValueError("The dataset is not applicable in the current training stage.")
 
