@@ -9,7 +9,7 @@ import configparser
 # 创建一个配置解析器对象
 config = configparser.ConfigParser()
 
-config.read('riki_config.ini')
+config.read('riki/riki_config.ini')
 
 
 def riki_config(key):
