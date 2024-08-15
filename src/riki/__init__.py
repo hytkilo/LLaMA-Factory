@@ -130,8 +130,8 @@ def gen_dict(data) -> Dict[str, Any]:
         upcast_layernorm=advance_config['upcastLayernorm'],
         use_llama_pro=advance_config['useLlamaPro'],
         flash_attn='auto',
-        neat_packing=True,
-        use_unsloth=True,
+        neat_packing=advance_config.get('neatPacking', True),
+        use_unsloth=advance_config.get('useUnsloth', True),
         # num_layer_trainable=advance_config['numLayerTrainable'],
         fp16=True
     )
