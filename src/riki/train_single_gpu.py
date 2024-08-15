@@ -1,6 +1,6 @@
 import socketio
-from .tuner import run_riki_exp
-from .riki import riki_config
+from tuner import run_riki_exp
+from riki import riki_config
 
 
 def main():

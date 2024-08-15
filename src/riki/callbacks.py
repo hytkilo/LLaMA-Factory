@@ -6,7 +6,7 @@ from llamafactory.extras.logging import LoggerHandler, get_logger
 import shutil
 from datetime import timedelta
 import requests
-from .riki import riki_config
+from riki import riki_config
 import json
 from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR, has_length
 from transformers import TrainerCallback

@@ -1,5 +1,5 @@
 from callbacks import RikiLogCallback, RikiLogCallbackRedis
-from .riki import gen_dict
+from riki import gen_dict
 from llamafactory.hparams import get_train_args
 from llamafactory.train.tuner import run_sft
 from llamafactory.train.callbacks import LogCallback
