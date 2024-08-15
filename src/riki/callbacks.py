@@ -2,7 +2,7 @@ import logging
 from typing import TYPE_CHECKING, Any, Dict, Optional
 import time
 
-from llamafactory.extras.logging import LoggerHandler, get_logger
+from ..llamafactory.extras.logging import LoggerHandler, get_logger
 import shutil
 from datetime import timedelta
 import requests

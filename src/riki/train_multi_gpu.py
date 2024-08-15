@@ -2,7 +2,7 @@ import socketio
 from typing import Any, Dict
 import json
 import os.path
-from .riki import riki_config, gen_dict
+from riki import riki_config, gen_dict
 import redis
 import subprocess
 
