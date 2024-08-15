@@ -19,3 +19,7 @@ fire
 packaging
 pyyaml
 numpy<2.0.0
+python-socketio
+websockets
+websocket-client
+redis
