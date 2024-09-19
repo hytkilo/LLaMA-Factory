@@ -59,7 +59,7 @@ def _mp_fn(index):
 
 def gen_cmd(args: Dict[str, Any]) -> str:
     cmd_lines = [
-        "conda run -n riki_lf accelerate launch --config_file ../examples/accelerate/single_config.yaml train_bash.py"]
+        "conda run -n riki_lf accelerate launch --config_file ../examples/accelerate/single_config.yaml train.py"]
     for k, v in args.items():
         if v is not None and v is not False and v != "":
             cmd_lines.append(" --{} {} ".format(k, str(v)))
