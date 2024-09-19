@@ -73,7 +73,7 @@ class DatasetAttr:
 def get_riki_dataset_list(data_args: "DataArguments") -> List["DatasetAttr"]:
     print('get_riki_dataset_list start')
     dataset_list: List[DatasetAttr] = []
-    dataset = os.path.join(data_args.dataset_dir, data_args.dataset)
+    dataset = os.path.join(data_args.dataset_dir, data_args.dataset[0])
     dataset_info = {
         "file_name": dataset
     }
