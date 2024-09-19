@@ -61,7 +61,7 @@ def run_exp(args: Optional[Dict[str, Any]] = None, callbacks: List["TrainerCallb
 def run_riki_exp(sio, data):
     args = gen_dict(data)
     model_args, data_args, training_args, finetuning_args, generating_args = get_train_args(args)
-    callbacks = [LogCallback(training_args.output_dir), RikiLogCallback(socket=sio, data=data, output_dir=args.get('output_dir'))]
+    callbacks = [LogCallback(), RikiLogCallback(socket=sio, data=data, output_dir=args.get('output_dir'))]
     try:
         run_sft(model_args, data_args, training_args, finetuning_args, generating_args, callbacks)
     except Exception as e:
