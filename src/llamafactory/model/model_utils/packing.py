@@ -43,9 +43,9 @@ import torch
 import torch.nn.functional as F
 from transformers.utils.versions import require_version
 
+from ...extras import logging
 from ...extras.constants import SUPPORTED_CLASS_FOR_BLOCK_DIAG_ATTN
-from ...extras.logging import get_logger
-from ...extras.packages import is_transformers_version_greater_than_4_43
+from ...extras.packages import is_transformers_version_greater_than
 
 
 if TYPE_CHECKING:
@@ -54,7 +54,7 @@ if TYPE_CHECKING:
     from ...hparams import ModelArguments
 
 
-logger = get_logger(__name__)
+logger = logging.get_logger(__name__)
 
 
 def get_seqlens_in_batch(attention_mask: "torch.Tensor") -> "torch.Tensor":
@@ -114,8 +114,8 @@ def get_unpad_data(attention_mask: "torch.Tensor") -> Tuple["torch.Tensor", "tor
 
 
 def _patch_for_block_diag_attn(model_type: str) -> None:
-    require_version("transformers>=4.41.2,<=4.45.0", "To fix: pip install transformers>=4.41.2,<=4.45.0")
-    if is_transformers_version_greater_than_4_43():
+    require_version("transformers>=4.41.2,<=4.46.1", "To fix: pip install transformers>=4.41.2,<=4.46.1")
+    if is_transformers_version_greater_than("4.43.0"):
         import transformers.modeling_flash_attention_utils
 
         transformers.modeling_flash_attention_utils._get_unpad_data = get_unpad_data
@@ -152,6 +152,6 @@ def configure_packing(config: "PretrainedConfig", model_args: "ModelArguments", 
     model_type = getattr(config, "model_type", None)
     if model_type in SUPPORTED_CLASS_FOR_BLOCK_DIAG_ATTN:
         _patch_for_block_diag_attn(model_type)
-        logger.info("Using block diagonal attention for sequence packing without cross-attention.")
+        logger.info_rank0("Using block diagonal attention for sequence packing without cross-attention.")
     else:
         raise ValueError("Current model does not support block diagonal attention.")
