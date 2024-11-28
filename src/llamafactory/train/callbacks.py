@@ -414,7 +414,7 @@ class RikiLogCallback(TrainerCallback):
                 files = {'file': (model_str, f)}
 
                 # 发送POST请求上传文件
-                response = requests.post(riki_config('riki.server_url') + riki_config('riki.upload_uri'), files=files)
+                response = requests.post(riki_config('riki.server_url') + riki_config('riki.upload_uri'), files=files, verify=False)
                 # 打印响应内容
                 print(response.text)
                 self.sio.emit("train_end", {'modelId': self.data['modelId'], 'modelUrl': response.json()['data']})
@@ -569,7 +569,7 @@ class RikiLogCallbackRedis(TrainerCallback):
                 files = {'file': (model_str, f)}
 
                 # 发送POST请求上传文件
-                response = requests.post(riki_config('riki.server_url') + riki_config('riki.upload_uri'), files=files)
+                response = requests.post(riki_config('riki.server_url') + riki_config('riki.upload_uri'), files=files, verify=False)
                 # 打印响应内容
                 print(response.text)
                 self.r.publish("train_model", json.dumps(
