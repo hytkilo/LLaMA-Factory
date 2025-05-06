@@ -23,7 +23,7 @@ from ..extras.constants import FILEEXT2TYPE
 from ..extras.misc import check_version, has_tokenized_data
 from .converter import align_dataset
 from .data_utils import get_dataset_module, merge_dataset, read_cloud_json, split_dataset
-from .parser import get_dataset_list
+from .parser import get_dataset_list, get_riki_dataset_list
 from .processor import (
     FeedbackDatasetProcessor,
     PackedSupervisedDatasetProcessor,
@@ -175,7 +175,7 @@ def _get_merged_dataset(
         return None
 
     datasets = {}
-    for dataset_name, dataset_attr in zip(dataset_names, get_dataset_list(dataset_names, data_args.dataset_dir)):
+    for dataset_name, dataset_attr in zip(dataset_names, get_riki_dataset_list(data_args)):
         if (stage == "rm" and dataset_attr.ranking is False) or (stage != "rm" and dataset_attr.ranking is True):
             raise ValueError("The dataset is not applicable in the current training stage.")
 

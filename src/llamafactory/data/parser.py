@@ -15,7 +15,7 @@
 import json
 import os
 from dataclasses import dataclass
-from typing import Any, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional, Sequence
 
 from huggingface_hub import hf_hub_download
 
@@ -89,6 +89,23 @@ class DatasetAttr:
             for tag in tag_names:
                 self.set_attr(tag, attr["tags"])
 
+
+def get_riki_dataset_list(data_args: "DataArguments") -> List["DatasetAttr"]:
+    print('get_riki_dataset_list start')
+    dataset_list: List[DatasetAttr] = []
+    dataset = os.path.join(data_args.dataset_dir, data_args.dataset[0])
+    dataset_info = {
+        "file_name": dataset
+    }
+    dataset_attr = DatasetAttr("file", dataset_name=dataset)
+    dataset_attr.set_attr("file_sha1", dataset_info)
+    dataset_attr.set_attr("subset", dataset_info)
+    dataset_attr.set_attr("folder", dataset_info)
+    dataset_attr.set_attr("ranking", dataset_info, default=False)
+    dataset_attr.set_attr("formatting", dataset_info, default="alpaca")
+    dataset_list.append(dataset_attr)
+    print('get_riki_dataset_list finish')
+    return dataset_list
 
 def get_dataset_list(dataset_names: Optional[list[str]], dataset_dir: str) -> list["DatasetAttr"]:
     r"""Get the attributes of the datasets."""
