@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, Any, Optional
 import torch
 import torch.distributed as dist
 from transformers import EarlyStoppingCallback, PreTrainedModel
-
+from riki import gen_dict
 from ..data import get_template_and_fix_tokenizer
 from ..extras import logging
 from ..extras.constants import V_HEAD_SAFE_WEIGHTS_NAME, V_HEAD_WEIGHTS_NAME
@@ -27,7 +27,7 @@ from ..extras.misc import infer_optim_dtype
 from ..extras.packages import is_ray_available
 from ..hparams import get_infer_args, get_ray_args, get_train_args, read_args
 from ..model import load_model, load_tokenizer
-from .callbacks import LogCallback, PissaConvertCallback, ReporterCallback
+from .callbacks import LogCallback, PissaConvertCallback, ReporterCallback, RikiLogCallback, RikiLogCallbackRedis
 from .dpo import run_dpo
 from .kto import run_kto
 from .ppo import run_ppo
@@ -108,6 +108,31 @@ def run_exp(args: Optional[dict[str, Any]] = None, callbacks: Optional[list["Tra
         trainer.fit()
     else:
         _training_function(config={"args": args, "callbacks": callbacks})
+
+
+def run_riki_exp(sio, data):
+    args = gen_dict(data)
+    model_args, data_args, training_args, finetuning_args, generating_args = get_train_args(args)
+    ray_args = get_ray_args(args)
+    callbacks = [LogCallback(), RikiLogCallback(socket=sio, data=data, output_dir=args.get('output_dir'))]
+    try:
+        if ray_args.use_ray:
+            callbacks.append(RayTrainReportCallback())
+            trainer = get_ray_trainer(
+                training_function=_training_function,
+                train_loop_config={"args": args, "callbacks": callbacks},
+                ray_args=ray_args,
+            )
+            trainer.fit()
+        else:
+            _training_function(config={"args": args, "callbacks": callbacks})
+    except Exception as e:
+        print(e)
+        sio.emit("train_error", {'modelId': data['modelId'], 'errorMsg': str(e)})
+        print("训练失败")
+
+    print('训练完毕')
+
 
 
 def export_model(args: Optional[dict[str, Any]] = None) -> None:
