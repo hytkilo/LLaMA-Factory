@@ -113,7 +113,8 @@ def run_sft(
                 keys += ["eval_loss", "eval_accuracy"]
 
             plot_loss(training_args.output_dir, keys=keys)
-
+        if trainer.is_world_process_zero():
+            callbacks[1].on_save(args=None, state=None, control=None)
     if training_args.predict_with_generate:
         tokenizer.padding_side = "left"  # use left-padding in generation
 
