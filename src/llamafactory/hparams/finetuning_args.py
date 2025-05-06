@@ -448,6 +448,11 @@ class FinetuningArguments(
         metadata={"help": "Whether or not to compute effective tokens per second."},
     )
 
+    model_id: str = field(
+        default='',
+        metadata={"help": "Whether riki model_id."},
+    )
+
     def __post_init__(self):
         def split_arg(arg):
             if isinstance(arg, str):
