@@ -37,7 +37,7 @@ from typing_extensions import override
 
 from ..extras import logging
 from ..extras.constants import TRAINER_LOG, V_HEAD_SAFE_WEIGHTS_NAME, V_HEAD_WEIGHTS_NAME
-from ..extras.misc import get_peak_memory, is_env_enabled, use_ray
+from ..extras.misc import get_peak_memory, is_env_enabled, use_ray, torch_gc
 
 
 if is_safetensors_available():
@@ -452,6 +452,7 @@ class RikiLogCallback(TrainerCallback):
                 response = requests.post(riki_config('riki.server_url') + riki_config('riki.upload_uri'), files=files, verify=False)
                 # 打印响应内容
                 print(response.text)
+
                 self.sio.emit("train_end", {'modelId': self.data['modelId'], 'modelUrl': response.json()['data']})
 
     def on_substep_end(self, args: "TrainingArguments", state: "TrainerState", control: "TrainerControl", **kwargs):
@@ -607,6 +608,7 @@ class RikiLogCallbackRedis(TrainerCallback):
                 response = requests.post(riki_config('riki.server_url') + riki_config('riki.upload_uri'), files=files, verify=False)
                 # 打印响应内容
                 print(response.text)
+                torch_gc()
                 self.r.publish("train_model", json.dumps(
                     {'modelId': self.data.model_id, 'modelUrl': response.json()['data'], 'type': 'train_end'},
                     ensure_ascii=False))
